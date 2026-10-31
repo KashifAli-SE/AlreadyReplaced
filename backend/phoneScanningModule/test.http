@@ -1,0 +1,127 @@
+# Test HTTP requests for Phone Scanning Module
+# Use REST Client extension in VSCode
+
+### Health Check
+GET http://localhost:3000/health
+
+### Get API Info
+GET http://localhost:3000/api
+
+### Get Statistics
+GET http://localhost:3000/api/scan/stats
+
+### Analyze Single App - Safe App (WhatsApp)
+POST http://localhost:3000/api/scan/analyze-app
+Content-Type: application/json
+
+{
+  "appName": "WhatsApp",
+  "packageName": "com.whatsapp",
+  "permissions": [
+    "android.permission.CAMERA",
+    "android.permission.RECORD_AUDIO",
+    "android.permission.READ_CONTACTS"
+  ],
+  "isSystemApp": false,
+  "installTimeMillis": 1698764400000,
+  "version": "2.23.20.76"
+}
+
+### Analyze Single App - Risky App (Fake Cleaner)
+POST http://localhost:3000/api/scan/analyze-app
+Content-Type: application/json
+
+{
+  "appName": "Super Cleaner Pro",
+  "packageName": "com.fake.cleaner",
+  "permissions": [
+    "android.permission.READ_SMS",
+    "android.permission.SEND_SMS",
+    "android.permission.READ_CONTACTS",
+    "android.permission.ACCESS_FINE_LOCATION",
+    "android.permission.CAMERA",
+    "android.permission.RECORD_AUDIO"
+  ],
+  "isSystemApp": false,
+  "installTimeMillis": 1730361600000,
+  "version": "1.0.0",
+  "useAI": false
+}
+
+### Analyze Single App - Critical Risk (Malicious)
+POST http://localhost:3000/api/scan/analyze-app
+Content-Type: application/json
+
+{
+  "appName": "System",
+  "packageName": "com.lucky.casino.hack",
+  "permissions": [
+    "android.permission.READ_SMS",
+    "android.permission.SEND_SMS",
+    "android.permission.READ_CONTACTS",
+    "android.permission.BIND_ACCESSIBILITY_SERVICE",
+    "android.permission.REQUEST_INSTALL_PACKAGES"
+  ],
+  "isSystemApp": false,
+  "installTimeMillis": 1730448000000,
+  "version": "1.0"
+}
+
+### Batch Analysis - Multiple Apps
+POST http://localhost:3000/api/scan/batch
+Content-Type: application/json
+
+{
+  "apps": [
+    {
+      "appName": "WhatsApp",
+      "packageName": "com.whatsapp",
+      "permissions": ["android.permission.CAMERA"],
+      "isSystemApp": false
+    },
+    {
+      "appName": "Chrome",
+      "packageName": "com.android.chrome",
+      "permissions": ["android.permission.INTERNET"],
+      "isSystemApp": false
+    },
+    {
+      "appName": "Lucky Casino",
+      "packageName": "com.lucky.casino",
+      "permissions": [
+        "android.permission.READ_SMS",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
+      "isSystemApp": false
+    },
+    {
+      "appName": "Phone Cleaner",
+      "packageName": "com.fake.cleaner",
+      "permissions": [
+        "android.permission.READ_CONTACTS",
+        "android.permission.SEND_SMS"
+      ],
+      "isSystemApp": false
+    }
+  ],
+  "options": {
+    "useAI": false,
+    "includeSystemApps": false
+  }
+}
+
+### Check Package Name Only
+POST http://localhost:3000/api/scan/check-package
+Content-Type: application/json
+
+{
+  "packageName": "com.lucky.casino"
+}
+
+### Invalid Request - Missing Required Fields
+POST http://localhost:3000/api/scan/analyze-app
+Content-Type: application/json
+
+{
+  "appName": "Test App"
+}
