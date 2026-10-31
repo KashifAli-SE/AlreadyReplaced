@@ -1,9 +1,11 @@
 import base64
 import requests
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel
 import dotenv
 import os
+
+from Agent.Tools.utility_bill_verification_tool import analyze_utility_bill
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
@@ -67,3 +69,22 @@ def check_qr_url(data: URLCheckRequest):
     except Exception as e:
         print(f"Exception occurred: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+#verify utility bill endpoint
+@app.post("/verify-utility-bill")
+async def verify_utility_bill(
+    file: UploadFile = File(...)
+):
+    pdf_bytes = await file.read()
+
+    result = await analyze_utility_bill(
+        pdf_bytes=pdf_bytes,
+        filename=file.filename or "utility_bill.pdf",
+    )
+
+    return {
+        "filename": file.filename,
+        "verification_report": result,
+    }
